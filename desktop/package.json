@@ -1,0 +1,19 @@
+{
+  "name": "@penpot/desktop",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Penpot desktop client (Tauri) — shared-instance fat client for macOS and Windows",
+  "scripts": {
+    "build:stub": "node scripts/build-stub.mjs",
+    "tauri": "tauri",
+    "dev": "tauri dev",
+    "dev:local": "PENPOT_DESKTOP_DEV=1 tauri dev",
+    "dev:docker": "PENPOT_DESKTOP_SIDECAR=docker tauri dev",
+    "dev:mcp": "PENPOT_DESKTOP_SIDECAR=mcp tauri dev",
+    "build": "tauri build",
+    "check": "cd src-tauri && cargo test && cargo clippy -- -D warnings"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  }
+}

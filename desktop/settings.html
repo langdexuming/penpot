@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Penpot 设置</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #f4f5f7;
+        --card: #ffffff;
+        --text: #1f2937;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+        --accent: #6366f1;
+        --accent-hover: #4f46e5;
+        --danger: #dc2626;
+        --ok: #059669;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #111827;
+          --card: #1f2937;
+          --text: #f9fafb;
+          --muted: #9ca3af;
+          --border: #374151;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+      }
+      .wrap {
+        max-width: 480px;
+        margin: 0 auto;
+        padding: 24px 20px 32px;
+      }
+      h1 {
+        margin: 0 0 4px;
+        font-size: 1.35rem;
+        font-weight: 600;
+      }
+      .subtitle {
+        margin: 0 0 20px;
+        color: var(--muted);
+        font-size: 0.875rem;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 14px;
+      }
+      .card h2 {
+        margin: 0 0 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+      }
+      label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 6px;
+      }
+      .hint {
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin: 4px 0 0;
+      }
+      input[type="text"],
+      select,
+      textarea {
+        width: 100%;
+        padding: 9px 11px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--bg);
+        color: var(--text);
+        font-size: 0.875rem;
+      }
+      textarea {
+        min-height: 64px;
+        resize: vertical;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+      .row {
+        margin-bottom: 14px;
+      }
+      .row:last-child {
+        margin-bottom: 0;
+      }
+      .check-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .check-row input {
+        width: auto;
+      }
+      .check-row label {
+        margin: 0;
+        font-weight: 400;
+      }
+      .readonly {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.8rem;
+        word-break: break-all;
+        color: var(--muted);
+      }
+      .actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 18px;
+      }
+      button {
+        flex: 1;
+        padding: 10px 16px;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+      }
+      button.primary {
+        background: var(--accent);
+        color: #fff;
+      }
+      button.primary:hover:not(:disabled) {
+        background: var(--accent-hover);
+      }
+      button.secondary {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text);
+      }
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      #status {
+        min-height: 1.25rem;
+        margin-top: 12px;
+        font-size: 0.8rem;
+      }
+      #status.error {
+        color: var(--danger);
+      }
+      #status.ok {
+        color: var(--ok);
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Penpot 设置</h1>
+      <p class="subtitle">配置 Penpot 实例连接与本地 Sidecar 编排</p>
+
+      <form id="settings-form">
+        <div class="card">
+          <h2>连接</h2>
+          <div class="row">
+            <label for="sidecar-profile">运行模式</label>
+            <select id="sidecar-profile" name="sidecar_profile">
+              <option value="remote">远程 / 私有部署</option>
+              <option value="devenv">本地 Devenv</option>
+              <option value="docker_local">本地 Docker</option>
+              <option value="managed_mcp">远程 Penpot + 本地 MCP</option>
+            </select>
+            <p class="hint">私有部署请选择「远程 / 私有部署」并填写服务器地址</p>
+          </div>
+          <div class="row" id="uri-row">
+            <label for="penpot-uri">Penpot 服务器地址</label>
+            <input
+              type="text"
+              id="penpot-uri"
+              name="penpot_public_uri"
+              placeholder="https://penpot.mycompany.com/"
+              autocomplete="url"
+            />
+          </div>
+          <div class="row">
+            <label>当前生效地址</label>
+            <div class="readonly" id="effective-uri">—</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Sidecar</h2>
+          <div class="row check-row">
+            <input type="checkbox" id="auto-start" name="auto_start_sidecar" checked />
+            <label for="auto-start">自动启动本地服务（devenv / Docker / MCP）</label>
+          </div>
+          <div class="row">
+            <label for="repo-root">Monorepo 路径（可选）</label>
+            <input
+              type="text"
+              id="repo-root"
+              name="repo_root"
+              placeholder="/path/to/penpot"
+            />
+            <p class="hint">用于 manage.sh、docker compose 和 MCP 构建；留空则自动探测</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>高级</h2>
+          <div class="row">
+            <label for="penpot-flags">功能开关 (penpotFlags)</label>
+            <textarea id="penpot-flags" name="penpot_flags"></textarea>
+          </div>
+          <div class="row">
+            <label>MCP Stream</label>
+            <div class="readonly" id="mcp-stream">—</div>
+          </div>
+          <div class="row">
+            <label>MCP WebSocket</label>
+            <div class="readonly" id="mcp-ws">—</div>
+          </div>
+          <div class="row">
+            <label>配置文件</label>
+            <div class="readonly" id="config-path">—</div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="secondary" id="cancel-btn">取消</button>
+          <button type="submit" class="primary" id="save-btn">保存并应用</button>
+        </div>
+        <div id="status"></div>
+      </form>
+    </div>
+
+    <script>
+      const invoke = window.__TAURI__?.core?.invoke;
+
+      const form = document.getElementById("settings-form");
+      const profileSelect = document.getElementById("sidecar-profile");
+      const uriRow = document.getElementById("uri-row");
+      const uriInput = document.getElementById("penpot-uri");
+      const statusEl = document.getElementById("status");
+
+      function setStatus(message, kind) {
+        statusEl.textContent = message || "";
+        statusEl.className = kind || "";
+      }
+
+      function updateUriVisibility() {
+        const profile = profileSelect.value;
+        const needsUri = profile === "remote" || profile === "managed_mcp";
+        uriRow.classList.toggle("hidden", !needsUri);
+        uriInput.required = needsUri;
+      }
+
+      function fillForm(data) {
+        profileSelect.value = data.sidecar_profile;
+        uriInput.value = data.penpot_public_uri || "";
+        document.getElementById("penpot-flags").value = data.penpot_flags || "";
+        document.getElementById("auto-start").checked = !!data.auto_start_sidecar;
+        document.getElementById("repo-root").value = data.repo_root || "";
+        document.getElementById("effective-uri").textContent = data.effective_penpot_uri || "—";
+        document.getElementById("mcp-stream").textContent = data.mcp_stream_url || "—";
+        document.getElementById("mcp-ws").textContent = data.mcp_ws_url || "—";
+        document.getElementById("config-path").textContent = data.config_path || "—";
+        updateUriVisibility();
+      }
+
+      async function loadSettings() {
+        if (!invoke) {
+          setStatus("Tauri API 不可用，请从桌面客户端打开此页面", "error");
+          return;
+        }
+        try {
+          const data = await invoke("get_settings");
+          fillForm(data);
+        } catch (err) {
+          setStatus(String(err), "error");
+        }
+      }
+
+      profileSelect.addEventListener("change", updateUriVisibility);
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!invoke) {
+          return;
+        }
+        const saveBtn = document.getElementById("save-btn");
+        saveBtn.disabled = true;
+        setStatus("正在保存…", "");
+        try {
+          const payload = {
+            penpot_public_uri: uriInput.value.trim(),
+            penpot_flags: document.getElementById("penpot-flags").value.trim(),
+            sidecar_profile: profileSelect.value,
+            auto_start_sidecar: document.getElementById("auto-start").checked,
+            repo_root: document.getElementById("repo-root").value.trim() || null,
+          };
+          const data = await invoke("save_settings", { payload });
+          fillForm(data);
+          setStatus("已保存，主窗口正在重新加载", "ok");
+          setTimeout(() => invoke("close_settings_window"), 800);
+        } catch (err) {
+          setStatus(String(err), "error");
+        } finally {
+          saveBtn.disabled = false;
+        }
+      });
+
+      document.getElementById("cancel-btn").addEventListener("click", () => {
+        if (invoke) {
+          invoke("close_settings_window");
+        }
+      });
+
+      loadSettings();
+    </script>
+  </body>
+</html>
