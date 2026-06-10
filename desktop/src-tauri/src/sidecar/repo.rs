@@ -1,6 +1,10 @@
 use std::path::{Path, PathBuf};
 
-const MARKERS: &[&str] = &["manage.sh", "docker/images/docker-compose.yaml", "mcp/package.json"];
+const MARKERS: &[&str] = &[
+    "manage.sh",
+    "docker/images/docker-compose.yaml",
+    "mcp/package.json",
+];
 
 pub fn resolve_repo_root() -> Option<PathBuf> {
     if let Ok(explicit) = std::env::var("PENPOT_REPO_ROOT") {

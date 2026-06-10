@@ -46,7 +46,11 @@ struct SidecarState {
 impl SidecarOrchestrator {
     pub fn from_config(cfg: &AppConfig) -> Self {
         let profile = cfg.effective_sidecar_profile();
-        let repo_root = cfg.repo_root.clone().map(PathBuf::from).or_else(resolve_repo_root);
+        let repo_root = cfg
+            .repo_root
+            .clone()
+            .map(PathBuf::from)
+            .or_else(resolve_repo_root);
         let penpot_uri = cfg.penpot_uri_for_profile(&profile);
 
         Self {
@@ -135,12 +139,7 @@ impl SidecarOrchestrator {
         if state.started_docker {
             if let Some(repo) = state.repo_root.as_ref() {
                 let _ = Command::new("docker")
-                    .args([
-                        "compose",
-                        "-f",
-                        "docker/images/docker-compose.yaml",
-                        "down",
-                    ])
+                    .args(["compose", "-f", "docker/images/docker-compose.yaml", "down"])
                     .current_dir(repo)
                     .stdout(Stdio::null())
                     .stderr(Stdio::null())
@@ -193,9 +192,8 @@ async fn run_profile(
             let mut spawned_devenv = false;
             if !health.probe_url(penpot_uri).await.reachable {
                 if cfg.auto_start_sidecar {
-                    spawned_devenv = spawn_devenv(&repo_root).map_err(|err| {
-                        failed_status(profile, penpot_uri, &repo_root, err)
-                    })?;
+                    spawned_devenv = spawn_devenv(&repo_root)
+                        .map_err(|err| failed_status(profile, penpot_uri, &repo_root, err))?;
                     let ready = health
                         .wait_for_reachable(
                             penpot_uri,
@@ -249,9 +247,8 @@ async fn run_profile(
             let mut started_docker = false;
             if !health.probe_url(penpot_uri).await.reachable {
                 if cfg.auto_start_sidecar {
-                    spawn_docker_stack(&repo_root).map_err(|err| {
-                        failed_status(profile, penpot_uri, &repo_root, err)
-                    })?;
+                    spawn_docker_stack(&repo_root)
+                        .map_err(|err| failed_status(profile, penpot_uri, &repo_root, err))?;
                     started_docker = true;
                     let ready = health
                         .wait_for_reachable(
@@ -265,7 +262,8 @@ async fn run_profile(
                             profile,
                             penpot_uri,
                             &repo_root,
-                            "Timed out waiting for docker stack at http://localhost:9001".to_string(),
+                            "Timed out waiting for docker stack at http://localhost:9001"
+                                .to_string(),
                         ));
                     }
                 } else {
@@ -306,9 +304,10 @@ async fn run_profile(
             let mcp_url = cfg.mcp_stream_url();
             let mut mcp_child = None;
             if !health.probe_url(&mcp_url).await.reachable && cfg.auto_start_sidecar {
-                mcp_child = Some(spawn_mcp_server(&repo_root).map_err(|err| {
-                    failed_status(profile, penpot_uri, &repo_root, err)
-                })?);
+                mcp_child = Some(
+                    spawn_mcp_server(&repo_root)
+                        .map_err(|err| failed_status(profile, penpot_uri, &repo_root, err))?,
+                );
                 let _ = health
                     .wait_for_reachable(
                         &mcp_url,
@@ -342,7 +341,11 @@ async fn run_profile(
     }
 }
 
-fn service_from_probe(name: &str, endpoint: &str, probe: &super::health::ProbeResult) -> ServiceStatus {
+fn service_from_probe(
+    name: &str,
+    endpoint: &str,
+    probe: &super::health::ProbeResult,
+) -> ServiceStatus {
     ServiceStatus {
         name: name.to_string(),
         state: if probe.reachable {

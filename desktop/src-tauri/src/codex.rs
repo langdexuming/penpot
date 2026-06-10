@@ -16,9 +16,7 @@ pub fn build_codex_snippet(config: &AppConfig, user_token: Option<&str>) -> Code
         None => config.mcp_stream_url(),
     };
 
-    let cli_override = format!(
-        r#"mcp_servers.penpot.url="{stream_url}""#
-    );
+    let cli_override = format!(r#"mcp_servers.penpot.url="{stream_url}""#);
 
     let toml_snippet = format!(
         r#"# Penpot MCP — paste into Codex config or pass via: codex -c '...'
